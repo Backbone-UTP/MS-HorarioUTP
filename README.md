@@ -14,6 +14,7 @@ otras cosas que debes saber antesd e empezar con mi codigo:
 string que me dejo y tengo que arreglar en un futuro aca algunas que me acuerdo ahora mismo
 
 PHPSESSID = cookieId
+
 UTP = universidad tecnologica de Pereira
 
 2. los test estan hechos, no en la carpeta test sino en la carpeta del mismo archivo
