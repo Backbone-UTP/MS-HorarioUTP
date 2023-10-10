@@ -1,4 +1,4 @@
-import { UTPConection } from "./UTPconection.js";
+import { UTPConection } from "./UTPConection.js";
 import { UTPInfoInput } from "./UTP.dto.js";
 import dotenv from 'dotenv'
 

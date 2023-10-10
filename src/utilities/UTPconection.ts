@@ -1,6 +1,7 @@
 import {parse} from 'node-html-parser';
 import { UTPInfoInput } from './UTP.dto.js';
 import { conectionError, missingError, userError } from './errores.js';
+import { magic } from './UTPMagicStrings.js';
 
 
 /**
@@ -76,16 +77,16 @@ class UTPConection implements UTPAPIINTERFACE{
      * @returns {void}
      */
     constructor(){
-        this.cookieId = "";
-        this.formId = "";
-        this.curentUser = "";
+        this.cookieId = magic.void;
+        this.formId = magic.void;
+        this.curentUser = magic.void;
         this.utpPHP = false;
     }
     async navigateIntoUtpPHP(): Promise<boolean> {
-        if(this.curentUser == ""){
+        if(this.curentUser == magic.void){
             throw new missingError("No se ha encontrado un usuario");
         }
-        if(this.cookieId == ""){
+        if(this.cookieId == magic.void){
             throw new missingError("No se ha encontrado un PHPSESSID");
         }
         let limitTime = setTimeout(()=>{
@@ -101,16 +102,16 @@ class UTPConection implements UTPAPIINTERFACE{
             clearTimeout(limitTime);
             return r.text();
         }).then(text=>{
-            this.utpPHP = text.substring(0, 8) !== "<script>"
+            this.utpPHP = text.substring(0, 8) !== magic.badUtpPhpRequest;
             return this.utpPHP;
         });
     }
 
     async validateUser(usuario, contraseña):Promise<boolean>{
-        if(this.curentUser != ""){
+        if(this.curentUser != magic.void){
             throw new userError("No puedes validar un usuario sin terminar la session de otro");
         }
-        if(this.cookieId == "" || this.formId == ""){
+        if(this.cookieId == magic.void || this.formId == magic.void){
             await this.getUtpInfo();
         }
         let data:string = `${this.formId}&txtUrio=${usuario}&txtPsswd=${contraseña}&cocat=0}`
@@ -132,7 +133,7 @@ class UTPConection implements UTPAPIINTERFACE{
             }
             return result.json();
         }).then(json=>{
-            let comprovacion:boolean = json[0] == "RD";
+            let comprovacion:boolean = json[0] == magic.goodValidateUserRequest;
             if(!comprovacion){
                 this.endSessionUser();
                 throw new userError("las credenciales del usuario no son correctas");
@@ -143,10 +144,10 @@ class UTPConection implements UTPAPIINTERFACE{
     }
 
     /*async validateUser(usuario: string, contraseña: string): Promise<boolean> {
-        if(this.curentUser != ""){
+        if(this.curentUser != magic.void){
             throw new userError("No puedes validar un usuario sin terminar la session de otro");
         }
-        if(this.cookieId == "" || this.formId == ""){
+        if(this.cookieId == magic.void || this.formId == magic.void){
             await this.getUtpInfo();
         }
         let data = `${this.formId}&txtUrio=${usuario}&txtPsswd=${contraseña}&cocat=0}`
@@ -188,11 +189,11 @@ class UTPConection implements UTPAPIINTERFACE{
             if (!result.ok) {
                 throw new conectionError(`error http: ${result.status}`);
             }
-            this.cookieId = result.headers.get("set-cookie").split(";")[3].substring(9, 45);
+            this.cookieId = result.headers.get("set-cookie").split(";")[magic.cookiePos].substring(magic.cookieLowBounds, magic.cookieHighBounds);
             return result.text()
         }).then(text=>{
                 let html = parse(text);
-                let input = html.querySelector('input[type="hidden"]');
+                let input = html.querySelector(magic.UTPgetInput);
                 let {name, value} = input.attributes;
                 this.formId = `${name}=${value}`
                 return{
@@ -202,9 +203,9 @@ class UTPConection implements UTPAPIINTERFACE{
         });
     }
     endSessionUser(): void {
-        this.cookieId = "";
-        this.curentUser = "";
-        this.formId = "";
+        this.cookieId = magic.void;
+        this.curentUser = magic.void;
+        this.formId = magic.void;
         this.utpPHP = false;
         return;
     }

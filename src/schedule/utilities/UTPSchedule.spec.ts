@@ -1,5 +1,5 @@
 import { UTPSchedule } from "./UTPSchedule.js";
-import { UTPConection } from "../../utilities/UTPconection.js";
+import { UTPConection } from "../../utilities/UTPConection.js";
 import { Schedule } from "./UTPSchedule.dto.js";
 import {parse} from 'node-html-parser';import dotenv from 'dotenv'
 

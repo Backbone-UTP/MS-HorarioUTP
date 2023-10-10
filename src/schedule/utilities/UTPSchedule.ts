@@ -1,7 +1,8 @@
-import { UTPConection } from "../../utilities/UTPconection.js";
+import { UTPConection } from "../../utilities/UTPConection.js";
 import { Schedule, ScheduleItem } from "./UTPSchedule.dto.js";
 import { conectionError } from "../../utilities/errores.js";
 import {parse} from 'node-html-parser';
+import { magic } from "./../../utilities/UTPMagicStrings.js";
 
 /**
  * @name `UTPScheduleINTERFACE`
@@ -63,7 +64,7 @@ class UTPSchedule extends UTPConection implements UTPScheduleINTERFACE{
     }
     async getScheduleFormat(): Promise<Array<Schedule>> {
         let html = parse(await this.getSchedule());
-        let elementos = html.querySelectorAll("fieldset.form1line")[2].text.split("\n");
+        let elementos = html.querySelectorAll(magic.scheduleFormatField)[2].text.split("\n");
         elementos.shift();
         elementos.shift();
         let data:Array<Schedule> = []
@@ -93,21 +94,20 @@ class UTPSchedule extends UTPConection implements UTPScheduleINTERFACE{
                 }
                 let separado:Array<string>;
                 if(horario[7] == " "){
-                    separado = horario.substring(8, horario.length).split(" ");
+                    separado = horario.substring(magic.goodScheduleBeginDay, horario.length).split(" ");
                 }else{
-                    separado = horario.substring(7, horario.length).split(" ");
+                    separado = horario.substring(magic.badScheduleBeginDay, horario.length).split(" ");
                 }
-                
                 let fecha:ScheduleItem = {
                     dia:"",
                     inicio:"",
                     final:"",
                     salon:""
                 };
-                fecha.dia = separado[0];
-                fecha.inicio = separado[2];
-                fecha.final = separado[4];
-                fecha.salon = horario.substring(0, 7);
+                fecha.dia = separado[magic.dayPos];
+                fecha.inicio = separado[magic.startHour];
+                fecha.final = separado[magic.endHour];
+                fecha.salon = horario.substring(magic.classroomLowBounds, magic.classroomHighBounds);
                 return fecha;
             });
             data.push(info);
