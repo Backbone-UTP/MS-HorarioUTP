@@ -63,7 +63,8 @@ class UTPSchedule extends UTPConection implements UTPScheduleINTERFACE{
         });
     }
     async getScheduleFormat(): Promise<Array<Schedule>> {
-        let html = parse(await this.getSchedule());
+        let d = await this.getSchedule();
+        let html = parse(d);
         let elementos = html.querySelectorAll(magic.scheduleFormatField)[2].text.split("\n");
         elementos.shift();
         elementos.shift();
